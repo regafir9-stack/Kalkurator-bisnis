@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RR Kalkulator Bisnis</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;padding:16px;background:#f7f4f8;color:#302635;font-family:Arial,sans-serif}
+header{background:#704477;color:white;border-radius:22px;padding:24px 16px;text-align:center;margin-bottom:20px}
+header h1{margin:0 0 8px;font-size:27px}
+header p{margin:0;font-size:15px}
+.card{background:white;border:1px solid #e4dce6;border-radius:20px;padding:20px;margin-bottom:18px}
+.tabs{display:flex;gap:8px;margin-bottom:20px}
+button,select,input{font:inherit}
+.tabs button{width:50%;border:0;border-radius:12px;padding:14px 5px;background:#eee6f0;color:#51345a;font-weight:bold}
+.tabs button.active,.primary{background:#704477;color:white}
+label{display:block;font-weight:bold;margin:14px 0 7px}
+input,select{width:100%;padding:14px;border:1px solid #d8cedb;border-radius:12px;background:white;color:#302635}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.primary{width:100%;border:0;border-radius:12px;padding:16px;margin-top:20px;font-weight:bold}
+.result{background:#f2eaf4;border-radius:12px;padding:16px;margin-top:16px;line-height:1.8;overflow-wrap:anywhere}
+h2{font-size:21px;margin-top:0}
+small{color:#766879}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<header>
+<h1>🧴 RR Kalkulator Bisnis</h1>
+<p>Kalkulator modal, harga jual, dan keuntungan</p>
+</header>
+
+<section class="card">
+<div class="tabs">
+<button id="tabProduk" class="active" type="button">Semua Produk</button>
+<button id="tabParfum" type="button">Parfum</button>
+</div>
+
+<div id="produk">
+<h2>Kalkulator Harga Jual</h2>
+<label>Nama produk</label>
+<input id="nama" value="Produk saya">
+<div class="row">
+<div><label>Modal barang (Rp)</label><input id="modal" type="number" min="0" value="10000"></div>
+<div><label>Biaya tambahan (Rp)</label><input id="biaya" type="number" min="0" value="1000"></div>
+</div>
+<div class="row">
+<div><label>Harga jual (Rp)</label><input id="jual" type="number" min="0" value="15000"></div>
+<div><label>Jumlah terjual</label><input id="jumlah" type="number" min="0" value="1"></div>
+</div>
+<button class="primary" id="hitungProduk" type="button">Hitung Keuntungan</button>
+<div class="result" id="hasilProduk" aria-live="polite">Masukkan angka lalu tekan Hitung Keuntungan.</div>
+</div>
+
+<div id="parfum" hidden>
+<h2>Kalkulator Parfum</h2>
+<label>Pilih aroma</label>
+<select id="aroma">
+<option value="920">Vanila — Rp920/ml</option>
+<option value="1180">Romantis — Rp1.180/ml</option>
+<option value="1060">Aqua Kis — Rp1.060/ml</option>
+<option value="1190">Skandal Lous — Rp1.190/ml</option>
+<option value="1320">Dunil Blue — Rp1.320/ml</option>
+</select>
+<div class="row">
+<div><label>Ukuran botol (ml)</label><select id="ukuran"><option>20</option><option>30</option><option>50</option><option>100</option></select></div>
+<div><label>Rasio bibit : pelarut</label><select id="rasio"><option value="0.5">1 : 2</option><option value="1" selected>1 : 1</option><option value="2">2 : 1</option></select></div>
+</div>
+<div class="row">
+<div><label>Harga pelarut (Rp)</label><input id="hargaPelarut" type="number" value="110000" min="0"></div>
+<div><label>Isi pelarut (ml)</label><input id="isiPelarut" type="number" value="900" min="1"></div>
+</div>
+<div class="row">
+<div><label>Botol per buah (Rp)</label><input id="botol" type="number" value="2200" min="0"></div>
+<div><label>Label/kemasan (Rp)</label><input id="kemasan" type="number" value="1000" min="0"></div>
+</div>
+<div class="row">
+<div><label>Target keuntungan (%)</label><input id="target" type="number" value="50" min="0"></div>
+<div><label>Harga jual manual (Rp)</label><input id="jualManual" type="number" min="0" value="15000"></div>
+</div>
+<button class="primary" id="hitungParfum" type="button">Hitung Harga Jual</button>
+<div class="result" id="hasilParfum" aria-live="polite">Pilih aroma lalu tekan Hitung Harga Jual.</div>
+</div>
+</section>
+
+<script>
+const $=id=>document.getElementById(id);
+const n=id=>Math.max(0,Number($(id).value)||0);
+const rp=x=>'Rp'+Math.round(x).toLocaleString('id-ID');
+function tampil(mode){
+$('produk').hidden=mode!=='produk';
+$('parfum').hidden=mode!=='parfum';
+$('tabProduk').classList.toggle('active',mode==='produk');
+$('tabParfum').classList.toggle('active',mode==='parfum');
+}
+$('tabProduk').onclick=()=>tampil('produk');
+$('tabParfum').onclick=()=>tampil('parfum');
+$('hitungProduk').onclick=()=>{
+let modal=n('modal'),biaya=n('biaya'),jual=n('jual'),jumlah=n('jumlah');
+let hpp=modal+biaya,laba=jual-hpp;
+$('hasilProduk').innerHTML=
+'<b>'+($('nama').value||'Produk')+'</b><br>'+
+'Modal per produk: '+rp(hpp)+'<br>'+
+'Keuntungan per produk: '+rp(laba)+'<br>'+
+'Margin keuntungan: '+(jual?((laba/jual)*100).toFixed(1):'0')+'%<br>'+
+'Jumlah terjual: '+jumlah+'<br>'+
+'<b>Total keuntungan: '+rp(laba*jumlah)+'</b>'+
+(laba<0?'<br>⚠️ Harga jual di bawah modal!':'');
+};
+$('hitungParfum').onclick=()=>{
+let ukuran=n('ukuran'),rasio=n('rasio');
+let bibitMl=ukuran*rasio/(1+rasio),pelarutMl=ukuran/(1+rasio);
+let hargaBibit=n('aroma'),hargaPel=n('hargaPelarut')/Math.max(1,n('isiPelarut'));
+let biayaBibit=bibitMl*hargaBibit;
+let biayaPel=pelarutMl*hargaPel;
+let hpp=biayaBibit+biayaPel+n('botol')+n('kemasan');
+let target=n('target'),saran=target<100?hpp/(1-target/100):0;
+let jual=n('jualManual'),laba=jual-hpp;
+$('hasilParfum').innerHTML=
+'<b>Rincian biaya parfum</b><br>'+
+'Bibit: '+bibitMl.toFixed(1)+' ml ('+rp(biayaBibit)+')<br>'+
+'Pelarut: '+pelarutMl.toFixed(1)+' ml ('+rp(biayaPel)+')<br>'+
+'Botol: '+rp(n('botol'))+'<br>'+
+'Label/kemasan: '+rp(n('kemasan'))+'<hr>'+
+'HPP per botol: <b>'+rp(hpp)+'</b><br>'+
+'Harga jual saran untuk margin '+target+'%: <b>'+rp(saran)+'</b><br>'+
+'Harga jual manual: '+rp(jual)+'<br>'+
+'Keuntungan manual: <b>'+rp(laba)+'</b><br>'+
+'Margin manual: '+(jual?((laba/jual)*100).toFixed(1):'0')+'%'+
+(laba<0?'<br>⚠️ Harga jual di bawah HPP!':'');
+};
+</script>
+</body>
+  </html>
